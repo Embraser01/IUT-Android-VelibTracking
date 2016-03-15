@@ -3,6 +3,9 @@ package com.embraser01.android.velibtracking;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,9 +15,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.embraser01.android.recyclerview.DividerItemDecoration;
+import com.embraser01.android.recyclerview.LinearLayoutManager;
+import com.embraser01.android.recyclerview.OnListFragmentInteractionListener;
+import com.embraser01.android.velibtracking.models.ListStation;
+import com.embraser01.android.velibtracking.models.Station;
+import com.embraser01.android.velibtracking.net.NetTask_Volley;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnListFragmentInteractionListener {
+
+
+    private ListStation listStation;
+
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
+    private RecyclerView.Adapter mAdapter;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +60,58 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.station_list);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // specify an adapter (see also next example)
+        loadStations();
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+//                listStation.deleteComputer(((StationListViewAdapter.ViewHolder) viewHolder).mItem);
+//                mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+//
+//                Snackbar.make(viewHolder.itemView, "You swipe to the " + ((direction == ItemTouchHelper.LEFT) ? "left" : "right"), Snackbar.LENGTH_LONG).setAction(R.string.main_undo_remove, new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        mAdapter.notifyItemInserted(listStation.undo());
+//                    }
+//                }).setCallback(new Snackbar.Callback() {
+//                    @Override
+//                    public void onDismissed(Snackbar snackbar, int event) {
+//                        listStation.clearPending();
+//                    }
+//                }).show();
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+
+        itemTouchHelper.attachToRecyclerView(this.mRecyclerView);
+
+        mAdapter = new StationListViewAdapter(this, listStation, this);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    public void loadStations(){
+        listStation = new ListStation(this);
+
+        NetTask_Volley.getStations(null, this, listStation);
     }
 
     @Override
@@ -97,5 +169,14 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void updateData() {
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onListFragmentInteraction(Station mItem) {
+        Snackbar.make(mRecyclerView, mItem.toString(), Snackbar.LENGTH_SHORT).show();
     }
 }

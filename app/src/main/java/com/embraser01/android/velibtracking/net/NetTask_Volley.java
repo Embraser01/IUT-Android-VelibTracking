@@ -2,6 +2,7 @@ package com.embraser01.android.velibtracking.net;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -34,18 +35,19 @@ public class NetTask_Volley {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO Auto-generated method stub
+                       Log.e("VOLLEY", error.toString());
 
                     }
                 });
 
         // Add the request to the RequestQueue.
         queue.add(data);
+        queue.start();
     }
 
     private static String getUri(String contract) {
         return new Uri.Builder()
-                .scheme("http")
+                .scheme("https")
                 .authority("api.jcdecaux.com")
                 .path("vls/v1/stations")
                 .appendQueryParameter("contract", (contract == null) ? "Lyon" : contract)

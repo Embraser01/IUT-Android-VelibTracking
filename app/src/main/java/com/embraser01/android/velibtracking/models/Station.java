@@ -123,4 +123,23 @@ public class Station {
     public boolean equals(Object o) {
         return o != null && o instanceof Station && this.number == ((Station) o).getNumber();
     }
+
+    @Override
+    public String toString() {
+        return "Station{" +
+                "number=" + number +
+                ", contract_name='" + contract_name + '\'' +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", position_lat=" + position_lat +
+                ", position_lng=" + position_lng +
+                ", banking=" + banking +
+                ", bonus=" + bonus +
+                ", status='" + status + '\'' +
+                ", bike_stands=" + bike_stands +
+                ", available_bike_stands=" + available_bike_stands +
+                ", available_bikes=" + available_bikes +
+                ", last_update=" + last_update +
+                '}';
+    }
 }

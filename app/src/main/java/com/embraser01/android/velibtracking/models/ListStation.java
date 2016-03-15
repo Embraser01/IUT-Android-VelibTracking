@@ -1,5 +1,7 @@
 package com.embraser01.android.velibtracking.models;
 
+import com.embraser01.android.velibtracking.MainActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -7,15 +9,15 @@ import org.json.JSONObject;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-/**
- * Created by Marc-Antoine on 15/03/2016.
- */
+
 public class ListStation {
 
     private ArrayList<Station> stations = null;
+    private MainActivity activity;
 
-    public ListStation() {
+    public ListStation(MainActivity activity) {
 
+        this.activity = activity;
         stations = new ArrayList<>();
     }
 
@@ -39,10 +41,10 @@ public class ListStation {
                         tmp2.getInt("bike_stands"),
                         tmp2.getInt("available_bike_stands"),
                         tmp2.getInt("available_bikes"),
-                        Timestamp.valueOf(tmp2.getString("last_update"))
+                        new Timestamp(tmp2.getLong("last_update"))
                 );
 
-                if(!this.stations.contains(tmp)){
+                if (!this.stations.contains(tmp)) {
                     this.stations.add(tmp);
                 } else {
                     // TODO Handle update
@@ -52,5 +54,15 @@ public class ListStation {
             }
         }
 
+        activity.updateData();
+    }
+
+
+    public ArrayList<Station> getStations() {
+        return stations;
+    }
+
+    public int count() {
+        return stations.size();
     }
 }

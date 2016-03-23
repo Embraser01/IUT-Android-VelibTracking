@@ -26,8 +26,10 @@ public class ListStation implements Parcelable {
     }
 
     public ListStation(Parcel in) {
-        this.stations = new ArrayList<>();
-        in.readList(stations, Station.class.getClassLoader());
+        int size = in.readInt();
+        this.stations = new ArrayList<>(size);
+        for(int i = 0; i < size; i++) this.stations.add(in.<Station>readParcelable(ListStation.class.getClassLoader()));
+
         this.context = null;
     }
 
@@ -83,7 +85,9 @@ public class ListStation implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeList(this.stations);
+
+        dest.writeInt(this.stations.size());
+        for(int i = 0; i < stations.size(); i++) dest.writeParcelable(this.stations.get(i), flags);
     }
 
     public static final Parcelable.Creator<ListStation> CREATOR = new Parcelable.Creator<ListStation>() {

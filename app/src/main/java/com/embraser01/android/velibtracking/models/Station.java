@@ -36,7 +36,7 @@ public class Station implements Parcelable {
         this.bike_stands = in.readInt();
         this.available_bike_stands = in.readInt();
         this.available_bikes = in.readInt();
-        this.last_update = new Timestamp(in.readLong());
+        this.last_update = Timestamp.valueOf(in.readString());
     }
 
     public Station(int number, String contract_name, String name, String address, double position_lat, double position_lng, boolean banking, boolean bonus, String status, int bike_stands, int available_bike_stands, int available_bikes, Timestamp last_update) {

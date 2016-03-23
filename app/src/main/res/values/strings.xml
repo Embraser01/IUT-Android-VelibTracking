@@ -9,4 +9,7 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="station_picture">station picture</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_details">Details</string>
+    <string name="title_activity_stations">Stations</string>
+    <string name="stations_map_info">Nombre de vélos disponible :</string>
 </resources>

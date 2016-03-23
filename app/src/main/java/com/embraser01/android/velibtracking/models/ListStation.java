@@ -1,5 +1,9 @@
 package com.embraser01.android.velibtracking.models;
 
+import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.embraser01.android.velibtracking.MainActivity;
 
 import org.json.JSONArray;
@@ -10,15 +14,21 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 
-public class ListStation {
+public class ListStation implements Parcelable {
 
     private ArrayList<Station> stations = null;
-    private MainActivity activity;
+    private Context context;
 
-    public ListStation(MainActivity activity) {
+    public ListStation(Context context) {
 
-        this.activity = activity;
+        this.context = context;
         stations = new ArrayList<>();
+    }
+
+    public ListStation(Parcel in) {
+        this.stations = new ArrayList<>();
+        in.readList(stations, Station.class.getClassLoader());
+        this.context = null;
     }
 
 
@@ -54,7 +64,7 @@ public class ListStation {
             }
         }
 
-        activity.updateData();
+        if(context != null) ((MainActivity) context).updateData();
     }
 
 
@@ -65,4 +75,25 @@ public class ListStation {
     public int count() {
         return stations.size();
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeList(this.stations);
+    }
+
+    public static final Parcelable.Creator<ListStation> CREATOR = new Parcelable.Creator<ListStation>() {
+        public ListStation createFromParcel(Parcel in) {
+            return new ListStation(in);
+        }
+
+        public ListStation[] newArray(int size) {
+            return new ListStation[size];
+        }
+
+    };
 }

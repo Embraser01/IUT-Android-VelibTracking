@@ -1,5 +1,6 @@
 package com.embraser01.android.velibtracking;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +13,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class StationsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class StationsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
 
@@ -63,7 +65,20 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
                     .position(pos)
                     .title(stations.get(i).getName())
                     .snippet(snippet));
+            mMap.setOnInfoWindowClickListener(this);
+
         }
         if(pos != null) mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        for(int i = 0; i < stations.size(); i++){
+            if(stations.get(i).getName().equals(marker.getTitle())){
+                Intent intent = new Intent(StationsActivity.this, DetailsActivity.class);
+                intent.putExtra("station_detail", stations.get(i));
+                startActivity(intent);
+            }
+        }
     }
 }

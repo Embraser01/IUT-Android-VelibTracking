@@ -12,4 +12,5 @@
     <string name="title_activity_details">Details</string>
     <string name="title_activity_stations">Stations</string>
     <string name="stations_map_info">Nombre de vélos disponible :</string>
+    <string name="action_search">Search</string>
 </resources>

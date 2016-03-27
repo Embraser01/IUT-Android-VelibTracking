@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ListStation implements Parcelable {
@@ -100,4 +101,8 @@ public class ListStation implements Parcelable {
         }
 
     };
+
+    public void setStations(List<Station> stations) {
+        this.stations = new ArrayList<>(stations);
+    }
 }

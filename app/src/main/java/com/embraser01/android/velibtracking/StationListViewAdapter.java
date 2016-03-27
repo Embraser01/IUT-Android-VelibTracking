@@ -16,17 +16,20 @@ import com.embraser01.android.recyclerview.OnListFragmentInteractionListener;
 import com.embraser01.android.velibtracking.models.ListStation;
 import com.embraser01.android.velibtracking.models.Station;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StationListViewAdapter extends RecyclerView.Adapter<StationListViewAdapter.ViewHolder> {
 
-    private final ListStation mValues;
+    private List<Station> mValues;
     private final OnListFragmentInteractionListener mListener;
 
     private Context context;
     private int lastPosition = -1;
 
-    public StationListViewAdapter(Context context, ListStation items, OnListFragmentInteractionListener listener) {
+    public StationListViewAdapter(Context context, List<Station> items, OnListFragmentInteractionListener listener) {
         this.context = context;
-        mValues = items;
+        mValues = new ArrayList<>(items);
         mListener = listener;
     }
 
@@ -40,7 +43,7 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
-        holder.mItem = mValues.getStations().get(position);
+        holder.mItem = mValues.get(position);
 
         String tmp = holder.mItem.getName().replaceAll("[^A-Za-z]", "").substring(0, 1);
 
@@ -76,7 +79,7 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
 
     @Override
     public int getItemCount() {
-        return mValues.count();
+        return mValues.size();
     }
 
     /**
@@ -90,6 +93,62 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
             lastPosition = position;
         }
     }
+
+    public void updateModels(List<Station> models){
+        mValues = new ArrayList<>(models);
+    }
+
+    public Station removeItem(int position){
+        final Station model = mValues.remove(position);
+        notifyItemRemoved(position);
+        return model;
+    }
+
+    public void addItem(int position, Station model) {
+        mValues.add(position, model);
+        notifyItemInserted(position);
+    }
+
+    public void moveItem(int fromPosition, int toPosition){
+        final Station model = mValues.remove(fromPosition);
+        mValues.add(toPosition, model);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    public void animateTo(List<Station> models) {
+        applyAndAnimateRemovals(models);
+        applyAndAnimateAdditions(models);
+        applyAndAnimateMovedItems(models);
+    }
+
+    private void applyAndAnimateRemovals(List<Station> newModels) {
+        for (int i = mValues.size() - 1; i >= 0; i--) {
+            final Station model = mValues.get(i);
+            if (!newModels.contains(model)) {
+                removeItem(i);
+            }
+        }
+    }
+
+    private void applyAndAnimateAdditions(List<Station> newModels) {
+        for (int i = 0, count = newModels.size(); i < count; i++) {
+            final Station  model = newModels.get(i);
+            if (!mValues.contains(model)) {
+                addItem(i, model);
+            }
+        }
+    }
+
+    private void applyAndAnimateMovedItems(List<Station> newModels) {
+        for (int toPosition = newModels.size() - 1; toPosition >= 0; toPosition--) {
+            final Station model = newModels.get(toPosition);
+            final int fromPosition = mValues.indexOf(model);
+            if (fromPosition >= 0 && fromPosition != toPosition) {
+                moveItem(fromPosition, toPosition);
+            }
+        }
+    }
+
 
     @Override
     public void onViewDetachedFromWindow(ViewHolder holder) {
@@ -116,5 +175,7 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
         public void clearAnimation() {
             this.mView.clearAnimation();
         }
+
+
     }
 }

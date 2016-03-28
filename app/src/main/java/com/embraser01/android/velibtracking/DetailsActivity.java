@@ -1,6 +1,7 @@
 package com.embraser01.android.velibtracking;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -50,6 +51,13 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.fab){
+//    TODO Get GPS Data        new ItineraireTask(this, this.mMap, ,new LatLng(mItem.getPosition_lat(), mItem.getPosition_lng())).execute();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

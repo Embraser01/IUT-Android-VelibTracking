@@ -12,8 +12,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 
@@ -21,6 +19,7 @@ import java.util.ArrayList;
 
 public class StationsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private static final float ZOOM_FACTOR = 12;
     private GoogleMap mMap;
 
     private ArrayList<Station> stations;
@@ -83,24 +82,9 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void addItems() {
 
-
-        /*LatLng pos = null;
-        String snippet;
-        /*for (int i = 0; i < stations.size(); i++) {
-            pos = new LatLng(stations.get(i).getPosition_lat(), stations.get(i).getPosition_lng());
-            snippet = getResources().getString(R.string.stations_map_info) + stations.get(i).getAvailable_bikes();
-
-            mMap.addMarker(new MarkerOptions()
-                    .position(pos)
-                    .title(stations.get(i).getName())
-                    .snippet(snippet));
-            mMap.setOnInfoWindowClickListener(this);
-
-        }
-        if(pos != null) mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));*/
-
+        StationItem offsetItem = null;
         for (int i = 0; i < stations.size(); i++) {
-            StationItem offsetItem = new StationItem(stations.get(i));
+            offsetItem = new StationItem(stations.get(i));
             mClusterManager.addItem(offsetItem);
             mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<StationItem>() {
                 @Override
@@ -112,6 +96,16 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
                     return false;
                 }
             });
+        }
+
+        new ItineraireTask(this,
+                mMap,
+                new LatLng(stations.get(1).getPosition_lat(), stations.get(1).getPosition_lng()),
+                new LatLng(stations.get(0).getPosition_lat(), stations.get(0).getPosition_lng())
+        ).execute();
+
+        if (offsetItem != null) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(offsetItem.getPosition(), ZOOM_FACTOR));
         }
     }
 

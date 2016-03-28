@@ -9,13 +9,20 @@
     You can also add your credentials to an existing key, using this line:
     29:78:67:7F:9C:EA:9E:7F:E1:2C:6F:E6:16:7B:74:9A:E8:40:07:FD;com.embraser01.android.velibtracking
 
+    79:7D:5A:49:3F:FF:61:2E:67:00:45:73:09:C6:5D:C9:F0:79:33:48
+
+
     Alternatively, follow the directions here:
     https://developers.google.com/maps/documentation/android/start#get-key
+
+    AIzaSyBeO35icBmj7efzr0zRrPgZ32y7-Ev7xiw // LAPTOP
+
+    AIzaSyBRfsGK8v5NDsMrfoKG1QBiAYO5l8-dyEY // FIX
 
     Once you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
     -->
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
-        AIzaSyBeO35icBmj7efzr0zRrPgZ32y7-Ev7xiw
+        AIzaSyBRfsGK8v5NDsMrfoKG1QBiAYO5l8-dyEY
     </string>
 </resources>

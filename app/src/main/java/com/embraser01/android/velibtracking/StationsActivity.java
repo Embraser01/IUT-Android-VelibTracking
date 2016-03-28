@@ -1,7 +1,6 @@
 package com.embraser01.android.velibtracking;
 
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,15 +14,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class StationsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+public class StationsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
     private ArrayList<Station> stations;
+
+    private ClusterManager<StationItem> mClusterManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +58,38 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng pos = null;
+
+        setUpClusterer();
+
+    }
+
+    private void setUpClusterer() {
+
+        // Position the map.
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom();
+
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = new ClusterManager<>(this, mMap);
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap.setOnCameraChangeListener(mClusterManager);
+        mMap.setOnMarkerClickListener(mClusterManager);
+
+        // Add cluster items (markers) to the cluster manager.
+        addItems();
+    }
+
+    private void addItems() {
+
+
+        /*LatLng pos = null;
         String snippet;
-        for (int i = 0; i < stations.size(); i++) {
+        /*for (int i = 0; i < stations.size(); i++) {
             pos = new LatLng(stations.get(i).getPosition_lat(), stations.get(i).getPosition_lng());
             snippet = getResources().getString(R.string.stations_map_info) + stations.get(i).getAvailable_bikes();
+
             mMap.addMarker(new MarkerOptions()
                     .position(pos)
                     .title(stations.get(i).getName())
@@ -68,17 +97,35 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
             mMap.setOnInfoWindowClickListener(this);
 
         }
-        if(pos != null) mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));
+        if(pos != null) mMap.moveCamera(CameraUpdateFactory.newLatLng(pos));*/
+
+        for (int i = 0; i < stations.size(); i++) {
+            StationItem offsetItem = new StationItem(stations.get(i));
+            mClusterManager.addItem(offsetItem);
+            mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<StationItem>() {
+                @Override
+                public boolean onClusterItemClick(StationItem stationItem) {
+
+                    Intent intent = new Intent(StationsActivity.this, DetailsActivity.class);
+                    intent.putExtra("station_detail", stationItem.mStation);
+                    startActivity(intent);
+                    return false;
+                }
+            });
+        }
     }
 
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        for(int i = 0; i < stations.size(); i++){
-            if(stations.get(i).getName().equals(marker.getTitle())){
-                Intent intent = new Intent(StationsActivity.this, DetailsActivity.class);
-                intent.putExtra("station_detail", stations.get(i));
-                startActivity(intent);
-            }
+
+    public class StationItem implements ClusterItem {
+        private Station mStation;
+
+        public StationItem(Station station) {
+            mStation = station;
+        }
+
+        @Override
+        public LatLng getPosition() {
+            return new LatLng(mStation.getPosition_lat(), mStation.getPosition_lng());
         }
     }
 }

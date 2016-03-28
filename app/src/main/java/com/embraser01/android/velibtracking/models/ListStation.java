@@ -38,13 +38,16 @@ public class ListStation implements Parcelable {
     public void add(JSONArray jsonArray) {
         Station tmp;
         JSONObject tmp2;
+
+        this.stations = new ArrayList<>(jsonArray.length());
+
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 tmp2 = jsonArray.getJSONObject(i);
 
                 tmp = new Station(tmp2.getInt("number"),
                         tmp2.getString("contract_name"),
-                        tmp2.getString("name"),
+                        tmp2.getString("name"), //REGEX POUR LYON... .replaceAll("^(\\S*\\s){2}",""),
                         tmp2.getString("address"),
                         tmp2.getJSONObject("position").getDouble("lat"),
                         tmp2.getJSONObject("position").getDouble("lng"),
@@ -57,11 +60,7 @@ public class ListStation implements Parcelable {
                         new Timestamp(tmp2.getLong("last_update"))
                 );
 
-                if (!this.stations.contains(tmp)) {
-                    this.stations.add(tmp);
-                } else {
-                    // TODO Handle update
-                }
+                this.stations.add(tmp);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

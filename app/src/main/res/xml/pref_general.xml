@@ -1,0 +1,9 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="contract_list"
+        android:negativeButtonText=""
+        android:positiveButtonText=""
+        android:title="@string/pref_title_contract" />
+
+</PreferenceScreen>

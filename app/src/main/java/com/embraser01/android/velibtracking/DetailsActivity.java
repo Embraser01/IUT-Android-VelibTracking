@@ -1,15 +1,10 @@
 package com.embraser01.android.velibtracking;
 
-import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.embraser01.android.velibtracking.models.Station;
@@ -24,6 +19,8 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
     private GoogleMap mMap;
     private Station mItem;
+
+    public final static float ZOOM_FACTOR = 18;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +50,6 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -83,8 +70,7 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         // Add a marker in Sydney and move the camera
         LatLng station = new LatLng(mItem.getPosition_lat(), mItem.getPosition_lng());
         mMap.addMarker(new MarkerOptions().position(station).title(mItem.getName()));
-        mMap.moveCamera(CameraUpdateFactory.zoomBy((float) 2.5));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(station));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(station, ZOOM_FACTOR ));
 
 
     }

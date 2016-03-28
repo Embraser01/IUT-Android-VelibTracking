@@ -8,12 +8,29 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.embraser01.android.velibtracking.MainActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/station_list"
-        android:scrollbars="vertical"
-        android:layout_width="match_parent"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_height="match_parent"
-        tools:context=".MainActivity"
-        tools:listitem="@layout/station_row" />
+        android:layout_width="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/station_list"
+            android:scrollbars="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".MainActivity"
+            tools:listitem="@layout/station_row" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"/>
 
 </RelativeLayout>

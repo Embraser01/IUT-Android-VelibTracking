@@ -1,16 +1,29 @@
 <resources>
     <string name="app_name">VelibTracking</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
-    <string name="title_activity_main2">Main2Activity</string>
-    <string name="section_format">Hello World from section: %1$d</string>
     <string name="station_picture">station picture</string>
-    <string name="title_activity_detail">DetailActivity</string>
     <string name="title_activity_details">Details</string>
     <string name="title_activity_stations">Stations</string>
-    <string name="stations_map_info">Nombre de vélos disponible :</string>
     <string name="action_search">Search</string>
+    <string name="action_change_city">Switch city</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+
+    <!-- Example settings for Data & Sync -->
+
+    <!-- Example settings for Notifications -->
+
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_contract">Contract</string>
+    <string name="pref_not_finish_loading">Cities are not loaded yet !</string>
+    <string name="dialog_connection">No internet</string>
+    <string name="dialog_connection_msg">You need an internet connection to go on. Restart the application when you have a working internet connection.</string>
+    <string name="error">Error</string>
 </resources>

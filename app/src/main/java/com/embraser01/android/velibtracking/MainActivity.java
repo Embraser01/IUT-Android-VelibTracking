@@ -35,7 +35,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements OnListFragmentInteractionListener, SearchView.OnQueryTextListener {
 
-    public final static String PREF_FILE = "com.embraser01.android.velibtracking.UserPreferences";
+    public final static String PREF_FILE = "com.embraser01.android.velibtracking_preferences";
 
     private ListStation listStation;
 

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,20 +18,25 @@ import com.embraser01.android.velibtracking.models.ListStation;
 import com.embraser01.android.velibtracking.models.Station;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StationListViewAdapter extends RecyclerView.Adapter<StationListViewAdapter.ViewHolder> {
 
     private List<Station> mValues;
+    private Set<String> fav_list;
+
     private final OnListFragmentInteractionListener mListener;
 
     private Context context;
     private int lastPosition = -1;
 
-    public StationListViewAdapter(Context context, List<Station> items, OnListFragmentInteractionListener listener) {
+    public StationListViewAdapter(Context context, List<Station> items, OnListFragmentInteractionListener listener, Set<String> fav_list) {
         this.context = context;
         mValues = new ArrayList<>(items);
         mListener = listener;
+        this.fav_list = fav_list;
     }
 
     @Override
@@ -49,11 +55,12 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
 
         TextDrawable textDrawable = TextDrawable.builder()
                 .buildRound(tmp,
-                        ColorGenerator.MATERIAL.getRandomColor());
+                        ColorGenerator.MATERIAL.getColor(tmp));
         holder.mImage.setImageDrawable(textDrawable);
 
         holder.mNameView.setText(holder.mItem.getName());
-//        holder.mContentView.setText(mValues.getList().get(position).getName());
+        holder.mStatusView.setText(holder.mItem.getStatus());
+        holder.mBikesAvailable.setText(holder.mItem.getAvailable_bikes() + " / " + holder.mItem.getBike_stands());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +81,20 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
             }
         });
 
+
+        holder.mFav.setImageResource((holder.mItem.isFav()) ? R.drawable.ic_fav_enable_24dp : R.drawable.ic_fav_disable_24dp);
+        holder.mFav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                holder.mItem.switchFav();
+                holder.mFav.setImageResource((holder.mItem.isFav()) ? R.drawable.ic_fav_enable_24dp : R.drawable.ic_fav_disable_24dp);
+
+                ((MainActivity) view.getContext()).saveFavList(); // FIXME Optimisation ??
+            }
+        });
+
+
+
         setAnimation(holder.mView, position);
     }
 
@@ -88,7 +109,7 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
     private void setAnimation(View viewToAnimate, int position) {
         // If the bound view wasn't previously displayed on screen, it's animated
         if (position > lastPosition) {
-            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
             viewToAnimate.startAnimation(animation);
             lastPosition = position;
         }
@@ -158,18 +179,21 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
     public class ViewHolder extends RecyclerView.ViewHolder {
         public View mView;
         public TextView mNameView;
-        public TextView mContentView;
+        public TextView mStatusView;
+        public TextView mBikesAvailable;
         public Station mItem;
         public ImageView mImage;
+        public ImageButton mFav;
 
         public ViewHolder(View view) {
-            // TODO Adapt view with computer info
             super(view);
 
             mImage = (ImageView) view.findViewById(R.id.station_picture);
             mView = view;
             mNameView = (TextView) view.findViewById(R.id.station_name);
-//            mContentView = (TextView) view.findViewById(R.id.com);
+            mStatusView = (TextView) view.findViewById(R.id.station_status);
+            mBikesAvailable = (TextView) view.findViewById(R.id.station_available_bikes);
+            mFav = (ImageButton) view.findViewById(R.id.station_fav);
         }
 
         public void clearAnimation() {

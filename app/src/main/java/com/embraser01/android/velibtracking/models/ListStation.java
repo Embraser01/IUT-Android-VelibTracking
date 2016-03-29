@@ -1,6 +1,7 @@
 package com.embraser01.android.velibtracking.models;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -12,13 +13,22 @@ import org.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 
 public class ListStation implements Parcelable {
 
     private ArrayList<Station> stations = null;
     private Context context;
+    private Set<String> fav_list;
+
+    public ListStation() {
+        this.context = null;
+        stations = new ArrayList<>();
+    }
 
     public ListStation(Context context) {
 
@@ -29,11 +39,51 @@ public class ListStation implements Parcelable {
     public ListStation(Parcel in) {
         int size = in.readInt();
         this.stations = new ArrayList<>(size);
-        for(int i = 0; i < size; i++) this.stations.add(in.<Station>readParcelable(ListStation.class.getClassLoader()));
+        for (int i = 0; i < size; i++)
+            this.stations.add(in.<Station>readParcelable(ListStation.class.getClassLoader()));
 
         this.context = null;
     }
 
+    public void loadFavPref(String contract) {
+        if (context == null) return;
+
+        fav_list = context.getSharedPreferences(MainActivity.PREF_FILE, MainActivity.MODE_PRIVATE).getStringSet("fav_list_" + contract, null);
+
+        if (fav_list != null) {
+            for (String item : fav_list) {
+                int num = Integer.parseInt(item);
+
+                for (Station tmp : stations) {
+                    if (tmp.getNumber() == num) {
+                        tmp.switchFav();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void saveFavPref(String contract) {
+        if (context == null) return;
+
+        SharedPreferences.Editor editor = context.getSharedPreferences(MainActivity.PREF_FILE, MainActivity.MODE_PRIVATE).edit();
+        editor.remove("fav_list_" + contract);
+
+        fav_list = new HashSet<>();
+        for (Station tmp : stations) if (tmp.isFav()) fav_list.add(Integer.toString(tmp.getNumber()));
+
+        editor.putStringSet("fav_list_" + contract, fav_list).apply();
+
+    }
+
+    public Set<String> getFavList() {
+        return fav_list;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
 
     public void add(JSONArray jsonArray) {
         Station tmp;
@@ -66,7 +116,7 @@ public class ListStation implements Parcelable {
             }
         }
 
-        if(context != null) ((MainActivity) context).updateData();
+        if (context != null) ((MainActivity) context).updateData();
     }
 
 
@@ -87,7 +137,7 @@ public class ListStation implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
 
         dest.writeInt(this.stations.size());
-        for(int i = 0; i < stations.size(); i++) dest.writeParcelable(this.stations.get(i), flags);
+        for (int i = 0; i < stations.size(); i++) dest.writeParcelable(this.stations.get(i), flags);
     }
 
     public static final Parcelable.Creator<ListStation> CREATOR = new Parcelable.Creator<ListStation>() {

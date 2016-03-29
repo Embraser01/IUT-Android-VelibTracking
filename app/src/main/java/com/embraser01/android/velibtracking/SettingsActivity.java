@@ -21,6 +21,7 @@ import android.preference.RingtonePreference;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -132,8 +133,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        setResult(RESULT_CANCELED);
 
         generalPreferenceFragment = new GeneralPreferenceFragment();
         getFragmentManager().beginTransaction().replace(R.id.content_frame, generalPreferenceFragment).disallowAddToBackStack().commit();
@@ -176,7 +180,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
 
             ArrayList<City> cities = new ArrayList<>();
             NetTask_Volley.getContract(this.getActivity(), cities, new Response.ErrorListener() {
@@ -195,6 +198,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         Snackbar.make(GeneralPreferenceFragment.this.getView(), R.string.pref_not_finish_loading, Snackbar.LENGTH_LONG).show();
                         return true;
                     }
+                    GeneralPreferenceFragment.this.getActivity().setResult(RESULT_OK);
                     return false;
 
                 }
@@ -203,10 +207,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
+
+            if(item.getItemId() == android.R.id.home){
+                this.getActivity().finish();
             }
             return super.onOptionsItemSelected(item);
         }

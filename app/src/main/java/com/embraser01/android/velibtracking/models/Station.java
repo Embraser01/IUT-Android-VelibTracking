@@ -22,6 +22,8 @@ public class Station implements Parcelable {
     private int available_bikes;
     private Timestamp last_update;
 
+    private boolean fav = false;
+
 
     private Station(Parcel in) {
         this.number = in.readInt();
@@ -133,6 +135,14 @@ public class Station implements Parcelable {
 
     public void setBanking(boolean banking) {
         this.banking = banking;
+    }
+
+    public boolean isFav() {
+        return fav;
+    }
+
+    public void switchFav() {
+        this.fav = !fav;
     }
 
 

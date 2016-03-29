@@ -1,7 +1,6 @@
 package com.embraser01.android.velibtracking;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -19,9 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.embraser01.android.recyclerview.DividerItemDecoration;
@@ -34,10 +33,9 @@ import com.embraser01.android.velibtracking.net.NetTask_Volley;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements OnListFragmentInteractionListener, SearchView.OnQueryTextListener {
+public class MainActivity extends AppCompatActivity implements OnListFragmentInteractionListener, SearchView.OnQueryTextListener {
 
-    public final static String PREF_FILE = "com.embraser01.android.velibtracking_preferences";
+    public final static String PREF_FILE = "com.embraser01.android.velibtracking.UserPreferences";
 
     private ListStation listStation;
 
@@ -47,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     private SwipeRefreshLayout mRefresh;
 
     private ProgressBar progressBar;
+    private String currentContract = null;
 
 
     @Override
@@ -71,28 +70,29 @@ public class MainActivity extends AppCompatActivity
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         mRefresh = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mRefresh.setColorSchemeColors(
+                ColorGenerator.MATERIAL.getColor(0),
+                ColorGenerator.MATERIAL.getColor(1),
+                ColorGenerator.MATERIAL.getColor(2),
+                ColorGenerator.MATERIAL.getColor(3));
+
         mRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if(checkConnection()) updateItems();
+                if (checkConnection()) updateItems();
             }
         });
 
-        if(checkConnection()) initRecyclerView();
+        initRecyclerView();
 
     }
 
-    private boolean checkConnection(){
-        if(!isConnected()){
+    private boolean checkConnection() {
+        if (!isConnected()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
             builder.setTitle(R.string.dialog_connection)
                     .setMessage(R.string.dialog_connection_msg)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            finish();
-                        }
-                    })
+                    .setPositiveButton("OK", null)
                     .show();
 
             return false;
@@ -109,13 +109,24 @@ public class MainActivity extends AppCompatActivity
                 activeNetwork.isConnectedOrConnecting();
     }
 
-    private void updateItems(){
+    public void updateContract() {
+        currentContract = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getString("contract_list", null);
 
-        String contract = getSharedPreferences(PREF_FILE, MODE_APPEND).getString("contract_list", null);
+        if (currentContract == null) currentContract = "Lyon";
+    }
 
-        if(contract == null) contract = "Lyon";
 
-        loadStations(contract);
+    private void updateItems() {
+        updateContract();
+
+        listStation = new ListStation(this);
+
+        NetTask_Volley.getStations(currentContract, this, listStation, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Snackbar.make(MainActivity.this.mRecyclerView, R.string.error + " " + volleyError.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
 
@@ -127,22 +138,19 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        updateItems();
+        listStation = getIntent().getParcelableExtra("load_data");
+        if (listStation != null) {
+            updateContract();
+            listStation.setContext(this);
+            progressBar.setVisibility(View.GONE);
+            listStation.loadFavPref(currentContract);
+        } else if (checkConnection()) {
+            updateItems();
+        }
 
-        mAdapter = new StationListViewAdapter(this, listStation.getStations(), this);
+        mAdapter = new StationListViewAdapter(this, listStation.getStations(), this, listStation.getFavList());
 
         mRecyclerView.setAdapter(mAdapter);
-    }
-
-    public void loadStations(String contract) {
-        listStation = new ListStation(this);
-
-        NetTask_Volley.getStations(contract, this, listStation,new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Snackbar.make(MainActivity.this.mRecyclerView, R.string.error + " " + volleyError.getMessage(), Snackbar.LENGTH_LONG).show();
-            }
-        });
     }
 
 
@@ -159,6 +167,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1337 && resultCode == RESULT_OK) {
+            this.mRefresh.setRefreshing(true);
+            this.updateItems();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -168,7 +185,14 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1337);
+            return true;
+        }
+        if (id == R.id.action_filter) {
+            item.setChecked(!item.isChecked());
+            final List<Station> filteredModelList = filterFav(listStation.getStations(), item.isChecked());
+            mAdapter.animateTo(filteredModelList);
+            mRecyclerView.scrollToPosition(0);
             return true;
         }
 
@@ -177,6 +201,7 @@ public class MainActivity extends AppCompatActivity
 
     public void updateData() {
         progressBar.setVisibility(View.INVISIBLE);
+        listStation.loadFavPref(currentContract);
         mAdapter.updateModels(listStation.getStations());
         mAdapter.notifyDataSetChanged();
         mRefresh.setRefreshing(false);
@@ -215,5 +240,20 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return filteredModelList;
+    }
+
+    private List<Station> filterFav(List<Station> models, boolean restrictToFav) {
+
+        if (!restrictToFav) return listStation.getStations();
+
+        final List<Station> filteredModelList = new ArrayList<>();
+
+        for (Station model : models) if (model.isFav()) filteredModelList.add(model);
+
+        return filteredModelList;
+    }
+
+    public void saveFavList() {
+        listStation.saveFavPref(currentContract);
     }
 }

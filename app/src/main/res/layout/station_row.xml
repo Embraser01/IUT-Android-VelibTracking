@@ -10,24 +10,28 @@
         android:id="@+id/station_picture"
         android:contentDescription="@string/station_picture" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:id="@+id/relativeLayout"
         android:layout_alignTop="@+id/station_picture"
-        android:id="@+id/linearLayout"
-        android:layout_toRightOf="@+id/station_picture"
         android:layout_toLeftOf="@+id/station_fav"
+        android:layout_toRightOf="@+id/station_picture"
+        android:layout_toEndOf="@+id/station_picture"
         android:layout_toStartOf="@+id/station_fav">
 
         <TextView
             android:id="@+id/station_name"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="16dp"
+            android:layout_height="wrap_content"
             android:textSize="15sp" />
 
         <LinearLayout
+            android:id="@+id/station_linear_layout"
+            android:layout_below="@+id/station_name"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -38,15 +42,22 @@
                 android:textSize="12sp"/>
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
+                android:text="@string/delimiter"/>
+
+            <TextView
                 android:id="@+id/station_available_bikes"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"
                 android:textSize="12sp" />
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <ImageButton
@@ -54,9 +65,9 @@
         android:layout_gravity="end"
         android:layout_width="40dp"
         android:background="@android:color/transparent"
-        android:layout_height="match_parent"
         android:contentDescription="@string/fav"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/relativeLayout"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/linearLayout" />
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

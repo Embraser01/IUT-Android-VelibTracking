@@ -97,7 +97,7 @@ public class NetTask_Volley {
                             }
                         }
 
-                        ((SettingsActivity) context).updateContractList(data);
+                        ((SettingsActivity) context).setContractList(data);
                     }
                 },
                 errorListener);

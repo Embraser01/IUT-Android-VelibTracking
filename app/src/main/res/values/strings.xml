@@ -29,4 +29,6 @@
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="fav">Fav</string>
     <string name="action_filter">Bookmarks</string>
+    <string name="delimiter">-</string>
+    <string name="action_go_to">Go to</string>
 </resources>

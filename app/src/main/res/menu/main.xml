@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/action_filter"
-        android:orderInCategory="1"
+        android:orderInCategory="50"
         android:checkable="true"
         android:checked="false"
         android:title="@string/action_filter"

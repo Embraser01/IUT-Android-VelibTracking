@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -47,6 +48,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
+    private ProgressBar progressBar;
+
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
@@ -133,6 +136,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -163,10 +167,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
 
-    public void updateContractList(CharSequence data[]){
+    public void setContractList(CharSequence data[]){
 
-        if(generalPreferenceFragment != null)
-            generalPreferenceFragment.updateContractList(data);
+        if(generalPreferenceFragment != null) {
+            generalPreferenceFragment.setContractList(data);
+            getFragmentManager().beginTransaction().replace(R.id.content_frame, generalPreferenceFragment).disallowAddToBackStack().commit();
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -189,20 +196,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             });
 
-
-            contract_list = (ListPreference) findPreference("contract_list");
-            contract_list.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    if (contract_list.getEntryValues().length == 0) {
-                        Snackbar.make(GeneralPreferenceFragment.this.getView(), R.string.pref_not_finish_loading, Snackbar.LENGTH_LONG).show();
-                        return true;
-                    }
-                    GeneralPreferenceFragment.this.getActivity().setResult(RESULT_OK);
-                    return false;
-
-                }
-            });
         }
 
         @Override
@@ -214,7 +207,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
 
-        public void updateContractList(CharSequence[] data) {
+        public void setContractList(CharSequence[] data) {
+
+            contract_list = (ListPreference) findPreference("contract_list");
+            contract_list.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GeneralPreferenceFragment.this.getActivity().setResult(RESULT_OK);
+                    return false;
+
+                }
+            });
 
             contract_list.setEntries(data);
             contract_list.setEntryValues(data);

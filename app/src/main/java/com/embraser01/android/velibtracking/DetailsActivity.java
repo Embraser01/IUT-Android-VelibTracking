@@ -1,12 +1,12 @@
 package com.embraser01.android.velibtracking;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -26,6 +26,8 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
     private GoogleMap mMap;
     private Station mItem;
+    private MenuItem item_go_to = null;
+    private int toolbar_height = 0;
 
     public final static float ZOOM_FACTOR = 18;
 
@@ -33,19 +35,38 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        FloatingActionButton fab =(FloatingActionButton) findViewById(R.id.fab);
+        makeHeight();
+
+
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+        if (appBarLayout != null) {
+            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                @Override
+                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                    if(item_go_to == null) return;
+
+                    if (toolbar != null) {
+                        if(verticalOffset <= -toolbar_height && !item_go_to.isVisible()){
+                            item_go_to.setVisible(true);
+                        }else if(item_go_to.isVisible()){
+                            item_go_to.setVisible(false);
+                        }
+                    }
+
+                }
+            });
+        }
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Uri gmmIntentUri = Uri.parse("google.navigation:q=" + mItem.getPosition_lat() + "," + mItem.getPosition_lng() + "&mode=b");
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                    mapIntent.setPackage("com.google.android.apps.maps");
-                    startActivity(mapIntent);
+                    launchMapActivity();
                 }
             });
         }
@@ -61,13 +82,33 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         name.setText(mItem.getName());
     }
 
+    private void makeHeight(){
+        int[] attrs = new int[] { R.attr.actionBarSize /* index 0 */};
+
+        TypedArray ta = this.obtainStyledAttributes(attrs);
+        toolbar_height = (int) (getResources().getDimension(R.dimen.app_bar_height) - ta.getInt(0, -1));
+
+        ta.recycle();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.details, menu);
+        item_go_to = menu.findItem(R.id.action_go_to);
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.action_go_to){
+            launchMapActivity();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -77,8 +118,15 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         // Add a marker in Sydney and move the camera
         LatLng station = new LatLng(mItem.getPosition_lat(), mItem.getPosition_lng());
         mMap.addMarker(new MarkerOptions().position(station).title(mItem.getName()));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(station, ZOOM_FACTOR ));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(station, ZOOM_FACTOR));
 
 
+    }
+
+    public void launchMapActivity() {
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + mItem.getPosition_lat() + "," + mItem.getPosition_lng() + "&mode=b");
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
     }
 }

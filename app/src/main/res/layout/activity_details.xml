@@ -35,6 +35,11 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 tools:context="com.embraser01.android.velibtracking.DetailsActivity" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape_scrim"/>
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"

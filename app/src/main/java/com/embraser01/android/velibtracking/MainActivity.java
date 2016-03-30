@@ -95,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
                     .setPositiveButton("OK", null)
                     .show();
 
+            mRefresh.setRefreshing(false);
+            progressBar.setVisibility(View.GONE);
             return false;
         } else {
             return true;
@@ -146,11 +148,14 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
             listStation.loadFavPref(currentContract);
         } else if (checkConnection()) {
             updateItems();
+        } else {
+            listStation = new ListStation(this);
         }
 
         mAdapter = new StationListViewAdapter(this, listStation.getStations(), this, listStation.getFavList());
 
         mRecyclerView.setAdapter(mAdapter);
+
     }
 
 

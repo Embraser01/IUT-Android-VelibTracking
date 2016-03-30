@@ -8,6 +8,13 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/action_go_to_from"
+        android:orderInCategory="25"
+        android:icon="@drawable/ic_navigation_white_24dp"
+        android:title="@string/action_go_to_from"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_filter_fav"
         android:orderInCategory="50"
         android:checkable="true"

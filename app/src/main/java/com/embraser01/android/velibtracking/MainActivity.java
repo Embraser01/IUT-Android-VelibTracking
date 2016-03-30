@@ -13,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -49,10 +48,15 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
     private SearchView searchView;
     private String currentContract = null;
 
+    private MenuItem goToFrom = null;
+
     private MenuItem filterFav = null;
     private MenuItem filterFull = null;
     private MenuItem filterEmpty = null;
     private MenuItem filterOpen = null;
+
+    private Station startStation = null;
+    private Station endStation = null;
 
 
     @Override
@@ -122,6 +126,9 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         searchView = (SearchView) MenuItemCompat.getActionView(item);
         searchView.setOnQueryTextListener(this);
 
+        goToFrom = menu.findItem(R.id.action_go_to_from);
+        goToFrom.setVisible(false);
+
         filterFav = menu.findItem(R.id.action_filter_fav);
         filterFull = menu.findItem(R.id.action_filter_full_station);
         filterEmpty = menu.findItem(R.id.action_filter_empty_station);
@@ -146,14 +153,22 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
                 || item == filterOpen) {
             item.setChecked(!item.isChecked());
 
-            List<Station> filteredModelList = filterFav(listStation.getStations(), filterFav.isChecked());
-            filteredModelList = filterEmptyStation(filteredModelList, !filterEmpty.isChecked());
-            filteredModelList = filterFullStation(filteredModelList, !filterFull.isChecked());
-            filteredModelList = filterOpenStation(filteredModelList, !filterOpen.isChecked());
-
-            mAdapter.animateTo(filteredModelList);
-            mRecyclerView.scrollToPosition(0);
+            filters();
             return true;
+        }
+
+        if(item == goToFrom && startStation != null && endStation != null){
+            goToFrom.setVisible(false);
+
+            Intent intent = new Intent(MainActivity.this, StationsActivity.class);
+
+            intent.putExtra("map_stations", listStation);
+            intent.putExtra("start_station", startStation);
+            intent.putExtra("end_station", endStation);
+            startActivity(intent);
+
+            startStation = null;
+            endStation = null;
         }
 
         return super.onOptionsItemSelected(item);
@@ -161,11 +176,27 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
 
     @Override
-    public void onListFragmentInteraction(Station mItem) {
+    public void onClickItemListener(Station mItem) {
 
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
         intent.putExtra("station_detail", mItem);
         startActivity(intent);
+    }
+
+    @Override
+    public void onLongClickItemListener(Station mItem) {
+
+        if (startStation == null) {
+            goToFrom.setVisible(true);
+            goToFrom.setEnabled(false);
+            startStation = mItem;
+            Snackbar.make(this.mRecyclerView, R.string.go_to_select_one_more, Snackbar.LENGTH_LONG).show();
+        } else if (endStation == null) {
+            goToFrom.setEnabled(true);
+            endStation = mItem;
+        } else {
+            Snackbar.make(this.mRecyclerView, R.string.go_to_already_two_selection, Snackbar.LENGTH_LONG).show();
+        }
     }
 
 
@@ -218,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
             listStation = new ListStation(this);
         }
 
-        mAdapter = new StationListViewAdapter(this, listStation.getStations(), this, listStation.getFavList());
+        mAdapter = new StationListViewAdapter(this, listStation.getStations(), this);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -251,8 +282,8 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         mAdapter.updateModels(listStation.getStations());
         mAdapter.notifyDataSetChanged();
         mRefresh.setRefreshing(false);
+        filters();
     }
-
 
 
     public void saveFavList() {
@@ -262,6 +293,16 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
 
     /*===== FILTERS SECTION =====*/
+
+    public void filters() {
+        List<Station> filteredModelList = filterFav(listStation.getStations(), filterFav.isChecked());
+        filteredModelList = filterEmptyStation(filteredModelList, !filterEmpty.isChecked());
+        filteredModelList = filterFullStation(filteredModelList, !filterFull.isChecked());
+        filteredModelList = filterOpenStation(filteredModelList, !filterOpen.isChecked());
+
+        mAdapter.animateTo(filteredModelList);
+        mRecyclerView.scrollToPosition(0);
+    }
 
 
     @Override

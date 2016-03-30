@@ -7,6 +7,8 @@ import com.embraser01.android.velibtracking.models.Station;
  */
 public interface OnListFragmentInteractionListener {
 
-    void onListFragmentInteraction(Station mItem);
+    void onClickItemListener(Station mItem);
+
+    void onLongClickItemListener(Station mItem);
 
 }

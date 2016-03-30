@@ -7,9 +7,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.w3c.dom.Document;
@@ -24,13 +23,8 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-/**
- * Created by Marc-Antoine on 29/03/2016.
- */
-public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
 
-    private static final String TOAST_MSG = "Calcul de l'itinéraire en cours";
-    private static final String TOAST_ERR_MAJ = "Impossible de trouver un itinéraire";
+public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
 
     private Context context;
     private GoogleMap gMap;
@@ -40,6 +34,7 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
 
     /**
      * Constructeur.
+     *
      * @param context
      * @param gMap
      * @param editDepart
@@ -47,17 +42,9 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
      */
     public ItineraireTask(final Context context, final GoogleMap gMap, final LatLng editDepart, final LatLng editArrivee) {
         this.context = context;
-        this.gMap= gMap;
+        this.gMap = gMap;
         this.editDepart = editDepart;
         this.editArrivee = editArrivee;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onPreExecute() {
-        Toast.makeText(context, TOAST_MSG, Toast.LENGTH_LONG).show();
     }
 
     /***
@@ -87,7 +74,7 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
 
             //On récupère d'abord le status de la requête
             final String status = document.getElementsByTagName("status").item(0).getTextContent();
-            if(!"OK".equals(status)) {
+            if (!"OK".equals(status)) {
                 return false;
             }
 
@@ -96,10 +83,10 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
             final NodeList nodeListStep = elementLeg.getElementsByTagName("step");
             final int length = nodeListStep.getLength();
 
-            for(int i=0; i<length; i++) {
+            for (int i = 0; i < length; i++) {
                 final Node nodeStep = nodeListStep.item(i);
 
-                if(nodeStep.getNodeType() == Node.ELEMENT_NODE) {
+                if (nodeStep.getNodeType() == Node.ELEMENT_NODE) {
                     final Element elementStep = (Element) nodeStep;
 
                     //On décode les points du XML
@@ -108,15 +95,15 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
             }
 
             return true;
-        }
-        catch(final Exception e) {
+        } catch (final Exception e) {
             return false;
         }
     }
 
     /**
      * Méthode qui décode les points en latitude et longitudes ==> http://jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
-     * @param points
+     *
+     * @param encodedPoints
      */
     private void decodePolylines(final String encodedPoints) {
         int index = 0;
@@ -145,7 +132,7 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
             int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
             lng += dlng;
 
-            lstLatLng.add(new LatLng((double)lat/1E5, (double)lng/1E5));
+            lstLatLng.add(new LatLng((double) lat / 1E5, (double) lng / 1E5));
         }
     }
 
@@ -154,34 +141,22 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
      */
     @Override
     protected void onPostExecute(final Boolean result) {
-        if(!result) {
-            Toast.makeText(context, TOAST_ERR_MAJ, Toast.LENGTH_SHORT).show();
-        }
-        else {
+        if (!result) {
+            Toast.makeText(context, R.string.go_to_fail_itinary, Toast.LENGTH_SHORT).show();
+        } else {
             //On déclare le polyline, c'est-à-dire le trait (ici bleu) que l'on ajoute sur la carte pour tracer l'itinéraire
             final PolylineOptions polylines = new PolylineOptions();
             polylines.color(Color.BLUE);
 
             //On construit le polyline
-            for(final LatLng latLng : lstLatLng) {
+            for (final LatLng latLng : lstLatLng) {
                 polylines.add(latLng);
             }
 
-            //On déclare un marker vert que l'on placera sur le départ
-            final MarkerOptions markerA = new MarkerOptions();
-            markerA.position(lstLatLng.get(0));
-            markerA.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            LatLngBounds lngBounds = new LatLngBounds.Builder().include(lstLatLng.get(0)).include(lstLatLng.get(lstLatLng.size() - 1)).build();
 
-            //On déclare un marker rouge que l'on mettra sur l'arrivée
-            final MarkerOptions markerB = new MarkerOptions();
-            markerB.position(lstLatLng.get(lstLatLng.size()-1));
-            markerB.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-
-            //On met à jour la carte
-            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lstLatLng.get(0), 10));
-            gMap.addMarker(markerA);
+            gMap.moveCamera(CameraUpdateFactory.newLatLngBounds(lngBounds, 25));
             gMap.addPolyline(polylines);
-//            gMap.addMarker(markerB);
         }
     }
 }

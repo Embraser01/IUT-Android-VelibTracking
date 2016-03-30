@@ -34,4 +34,8 @@
     <string name="action_filter_full_station">Show full station</string>
     <string name="action_filter_empty_station">Show empty station</string>
     <string name="action_filter_open_station">Show closed station</string>
+    <string name="go_to_already_two_selection">You have already selected two stations</string>
+    <string name="go_to_select_one_more">Select one more to create an itinerary</string>
+    <string name="action_go_to_from">Itinary between two station</string>
+    <string name="go_to_fail_itinary">Unable to get itinary</string>
 </resources>

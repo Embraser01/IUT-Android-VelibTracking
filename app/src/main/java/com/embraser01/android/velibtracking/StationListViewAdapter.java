@@ -14,29 +14,24 @@ import android.widget.TextView;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.embraser01.android.recyclerview.OnListFragmentInteractionListener;
-import com.embraser01.android.velibtracking.models.ListStation;
 import com.embraser01.android.velibtracking.models.Station;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class StationListViewAdapter extends RecyclerView.Adapter<StationListViewAdapter.ViewHolder> {
 
     private List<Station> mValues;
-    private Set<String> fav_list;
 
     private final OnListFragmentInteractionListener mListener;
 
     private Context context;
     private int lastPosition = -1;
 
-    public StationListViewAdapter(Context context, List<Station> items, OnListFragmentInteractionListener listener, Set<String> fav_list) {
+    public StationListViewAdapter(Context context, List<Station> items, OnListFragmentInteractionListener listener) {
         this.context = context;
         mValues = new ArrayList<>(items);
         mListener = listener;
-        this.fav_list = fav_list;
     }
 
     @Override
@@ -68,7 +63,7 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onClickItemListener(holder.mItem);
                 }
             }
         });
@@ -76,8 +71,12 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
         holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                // Handle selection
-                return false;
+                if (null != mListener) {
+                    // Notify the active callbacks interface (the activity, if the
+                    // fragment is attached to one) that an item has been selected.
+                    mListener.onLongClickItemListener(holder.mItem);
+                }
+                return true;
             }
         });
 

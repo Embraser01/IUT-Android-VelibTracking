@@ -98,6 +98,7 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.getUiSettings().setAllGesturesEnabled(false);
 
         // Add a marker in Sydney and move the camera
         LatLng station = new LatLng(mItem.getPosition_lat(), mItem.getPosition_lng());

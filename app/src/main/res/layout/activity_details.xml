@@ -37,7 +37,8 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="80dp"
+                android:layout_gravity="bottom"
                 android:background="@drawable/shape_scrim"/>
 
             <android.support.v7.widget.Toolbar

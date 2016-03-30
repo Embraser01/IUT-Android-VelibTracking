@@ -16,11 +16,27 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_filter_full_station"
+        android:id="@+id/action_filter_open_station"
         android:orderInCategory="51"
         android:checkable="true"
         android:checked="true"
+        android:title="@string/action_filter_open_station"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_filter_full_station"
+        android:orderInCategory="52"
+        android:checkable="true"
+        android:checked="true"
         android:title="@string/action_filter_full_station"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_filter_empty_station"
+        android:orderInCategory="53"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/action_filter_empty_station"
         app:showAsAction="never" />
 
     <item

@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -47,6 +48,11 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
     private ProgressBar progressBar;
     private SearchView searchView;
     private String currentContract = null;
+
+    private MenuItem filterFav = null;
+    private MenuItem filterFull = null;
+    private MenuItem filterEmpty = null;
+    private MenuItem filterOpen = null;
 
 
     @Override
@@ -98,18 +104,6 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        final MenuItem item = menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(item);
-        searchView.setOnQueryTextListener(this);
-
-        return true;
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == 1337 && resultCode == RESULT_OK) {
@@ -118,22 +112,45 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         }
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        final MenuItem item = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
+        filterFav = menu.findItem(R.id.action_filter_fav);
+        filterFull = menu.findItem(R.id.action_filter_full_station);
+        filterEmpty = menu.findItem(R.id.action_filter_empty_station);
+        filterOpen = menu.findItem(R.id.action_filter_open_station);
+
+        return true;
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivityForResult(intent, 1337);
             return true;
         }
-        if (id == R.id.action_filter_fav) {
+        if (item == filterFav
+                || item == filterEmpty
+                || item == filterFull
+                || item == filterOpen) {
             item.setChecked(!item.isChecked());
-            final List<Station> filteredModelList = filterFav(listStation.getStations(), item.isChecked());
+
+            List<Station> filteredModelList = filterFav(listStation.getStations(), filterFav.isChecked());
+            filteredModelList = filterEmptyStation(filteredModelList, !filterEmpty.isChecked());
+            filteredModelList = filterFullStation(filteredModelList, !filterFull.isChecked());
+            filteredModelList = filterOpenStation(filteredModelList, !filterOpen.isChecked());
+
             mAdapter.animateTo(filteredModelList);
             mRecyclerView.scrollToPosition(0);
             return true;
@@ -287,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
     private List<Station> filterFullStation(List<Station> models, boolean restrictToNotFull) {
 
-        if (!restrictToNotFull) return listStation.getStations();
+        if (!restrictToNotFull) return models;
 
         final List<Station> filteredModelList = new ArrayList<>();
 
@@ -299,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
     private List<Station> filterEmptyStation(List<Station> models, boolean restrictToNotEmpty) {
 
-        if (!restrictToNotEmpty) return listStation.getStations();
+        if (!restrictToNotEmpty) return models;
 
         final List<Station> filteredModelList = new ArrayList<>();
 
@@ -312,13 +329,12 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
     private List<Station> filterOpenStation(List<Station> models, boolean restrictToOpen) {
 
-        if (!restrictToOpen) return listStation.getStations();
+        if (!restrictToOpen) return models;
 
         final List<Station> filteredModelList = new ArrayList<>();
 
         for (Station model : models)
             if (model.getStatus().equals("OPEN")) filteredModelList.add(model);
-
         return filteredModelList;
     }
 }

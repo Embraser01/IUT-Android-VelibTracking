@@ -32,4 +32,6 @@
     <string name="delimiter">-</string>
     <string name="action_go_to">Go to</string>
     <string name="action_filter_full_station">Show full station</string>
+    <string name="action_filter_empty_station">Show empty station</string>
+    <string name="action_filter_open_station">Show closed station</string>
 </resources>

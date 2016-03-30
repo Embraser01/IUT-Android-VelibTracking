@@ -8,11 +8,19 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_filter"
+        android:id="@+id/action_filter_fav"
         android:orderInCategory="50"
         android:checkable="true"
         android:checked="false"
-        android:title="@string/action_filter"
+        android:title="@string/action_filter_fav"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_filter_full_station"
+        android:orderInCategory="51"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/action_filter_full_station"
         app:showAsAction="never" />
 
     <item

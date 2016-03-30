@@ -16,7 +16,7 @@ import com.embraser01.android.velibtracking.net.NetTask_Volley;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
-    private final static int SPLASH_TIME_OUT = 2000;
+    private final static int SPLASH_TIME_OUT = 2500;
     private ListStation listStation = null;
 
     @Override
@@ -57,7 +57,7 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         listStation = new ListStation();
 
-        NetTask_Volley.getStations(contract, this, listStation, new Response.ErrorListener() {
+        NetTask_Volley.getStations(contract, this, listStation, null ,new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
                 listStation = null;

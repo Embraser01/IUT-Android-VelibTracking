@@ -33,7 +33,7 @@ import com.embraser01.android.velibtracking.net.NetTask_Volley;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements OnListFragmentInteractionListener, SearchView.OnQueryTextListener {
+public class MainActivity extends AppCompatActivity implements OnListFragmentInteractionListener, SearchView.OnQueryTextListener, OnUpdateStationList {
 
     public final static String PREF_FILE = "com.embraser01.android.velibtracking_preferences";
 
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
     private SwipeRefreshLayout mRefresh;
 
     private ProgressBar progressBar;
+    private SearchView searchView;
     private String currentContract = null;
 
 
@@ -87,77 +88,14 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
     }
 
-    private boolean checkConnection() {
-        if (!isConnected()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-            builder.setTitle(R.string.dialog_connection)
-                    .setMessage(R.string.dialog_connection_msg)
-                    .setPositiveButton("OK", null)
-                    .show();
-
-            mRefresh.setRefreshing(false);
-            progressBar.setVisibility(View.GONE);
-            return false;
+    @Override
+    public void onBackPressed() {
+        if (searchView != null && !searchView.isIconified()) {
+            searchView.setIconified(true);
         } else {
-            return true;
+            super.onBackPressed();
         }
     }
-
-    public boolean isConnected() {
-        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-    }
-
-    public void updateContract() {
-        currentContract = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getString("contract_list", null);
-
-        if (currentContract == null) currentContract = "Lyon";
-    }
-
-
-    private void updateItems() {
-        updateContract();
-
-        listStation = new ListStation(this);
-
-        NetTask_Volley.getStations(currentContract, this, listStation, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Snackbar.make(MainActivity.this.mRecyclerView, R.string.error + " " + volleyError.getMessage(), Snackbar.LENGTH_LONG).show();
-            }
-        });
-    }
-
-
-    private void initRecyclerView() {
-        mRecyclerView = (RecyclerView) findViewById(R.id.station_list);
-
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        listStation = getIntent().getParcelableExtra("load_data");
-        if (listStation != null) {
-            updateContract();
-            listStation.setContext(this);
-            progressBar.setVisibility(View.GONE);
-            listStation.loadFavPref(currentContract);
-        } else if (checkConnection()) {
-            updateItems();
-        } else {
-            listStation = new ListStation(this);
-        }
-
-        mAdapter = new StationListViewAdapter(this, listStation.getStations(), this, listStation.getFavList());
-
-        mRecyclerView.setAdapter(mAdapter);
-
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -165,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         getMenuInflater().inflate(R.menu.main, menu);
 
         final MenuItem item = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView = (SearchView) MenuItemCompat.getActionView(item);
         searchView.setOnQueryTextListener(this);
 
         return true;
@@ -193,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
             startActivityForResult(intent, 1337);
             return true;
         }
-        if (id == R.id.action_filter) {
+        if (id == R.id.action_filter_fav) {
             item.setChecked(!item.isChecked());
             final List<Station> filteredModelList = filterFav(listStation.getStations(), item.isChecked());
             mAdapter.animateTo(filteredModelList);
@@ -204,13 +142,6 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateData() {
-        progressBar.setVisibility(View.INVISIBLE);
-        listStation.loadFavPref(currentContract);
-        mAdapter.updateModels(listStation.getStations());
-        mAdapter.notifyDataSetChanged();
-        mRefresh.setRefreshing(false);
-    }
 
     @Override
     public void onListFragmentInteraction(Station mItem) {
@@ -219,6 +150,102 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         intent.putExtra("station_detail", mItem);
         startActivity(intent);
     }
+
+
+    /*====== CONNECTION SECTION =====*/
+
+    private boolean checkConnection() {
+        if (!isConnected()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+            builder.setTitle(R.string.dialog_connection)
+                    .setMessage(R.string.dialog_connection_msg)
+                    .setPositiveButton("OK", null)
+                    .show();
+
+            mRefresh.setRefreshing(false);
+            progressBar.setVisibility(View.GONE);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isConnected() {
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+
+
+    /*===== LISTVIEW SECTION =====*/
+
+    private void initRecyclerView() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.station_list);
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        listStation = getIntent().getParcelableExtra("load_data");
+        if (listStation != null) {
+            updateContract();
+            listStation.setContext(this);
+            progressBar.setVisibility(View.GONE);
+            listStation.loadFavPref(currentContract);
+        } else if (checkConnection()) {
+            updateItems();
+        } else {
+            listStation = new ListStation(this);
+        }
+
+        mAdapter = new StationListViewAdapter(this, listStation.getStations(), this, listStation.getFavList());
+
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
+
+    public void updateContract() {
+        currentContract = getSharedPreferences(PREF_FILE, MODE_PRIVATE).getString("contract_list", null);
+
+        if (currentContract == null) currentContract = "Lyon";
+    }
+
+
+    private void updateItems() {
+        updateContract();
+
+        listStation = new ListStation(this);
+
+        NetTask_Volley.getStations(currentContract, this, listStation, this, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Snackbar.make(MainActivity.this.mRecyclerView, R.string.error + " " + volleyError.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    public void updateData() {
+        progressBar.setVisibility(View.INVISIBLE);
+        listStation.loadFavPref(currentContract);
+        mAdapter.updateModels(listStation.getStations());
+        mAdapter.notifyDataSetChanged();
+        mRefresh.setRefreshing(false);
+    }
+
+
+
+    public void saveFavList() {
+        listStation.saveFavPref(currentContract);
+    }
+
+
+
+    /*===== FILTERS SECTION =====*/
+
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -258,7 +285,40 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
         return filteredModelList;
     }
 
-    public void saveFavList() {
-        listStation.saveFavPref(currentContract);
+    private List<Station> filterFullStation(List<Station> models, boolean restrictToNotFull) {
+
+        if (!restrictToNotFull) return listStation.getStations();
+
+        final List<Station> filteredModelList = new ArrayList<>();
+
+        for (Station model : models)
+            if (model.getAvailable_bike_stands() > 0) filteredModelList.add(model);
+
+        return filteredModelList;
+    }
+
+    private List<Station> filterEmptyStation(List<Station> models, boolean restrictToNotEmpty) {
+
+        if (!restrictToNotEmpty) return listStation.getStations();
+
+        final List<Station> filteredModelList = new ArrayList<>();
+
+        for (Station model : models)
+            if (model.getAvailable_bike_stands() < model.getBike_stands())
+                filteredModelList.add(model);
+
+        return filteredModelList;
+    }
+
+    private List<Station> filterOpenStation(List<Station> models, boolean restrictToOpen) {
+
+        if (!restrictToOpen) return listStation.getStations();
+
+        final List<Station> filteredModelList = new ArrayList<>();
+
+        for (Station model : models)
+            if (model.getStatus().equals("OPEN")) filteredModelList.add(model);
+
+        return filteredModelList;
     }
 }

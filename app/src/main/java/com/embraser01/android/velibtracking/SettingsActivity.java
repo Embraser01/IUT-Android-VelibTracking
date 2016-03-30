@@ -148,6 +148,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == android.R.id.home){
+            this.finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -196,15 +205,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             });
 
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-
-            if(item.getItemId() == android.R.id.home){
-                this.getActivity().finish();
-            }
-            return super.onOptionsItemSelected(item);
         }
 
         public void setContractList(CharSequence[] data) {

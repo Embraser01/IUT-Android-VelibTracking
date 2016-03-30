@@ -28,7 +28,8 @@
     <string name="error">Error</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="fav">Fav</string>
-    <string name="action_filter">Bookmarks</string>
+    <string name="action_filter_fav">Bookmarks</string>
     <string name="delimiter">-</string>
     <string name="action_go_to">Go to</string>
+    <string name="action_filter_full_station">Show full station</string>
 </resources>

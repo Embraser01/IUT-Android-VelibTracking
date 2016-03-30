@@ -14,6 +14,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.embraser01.android.velibtracking.OnUpdateStationList;
 import com.embraser01.android.velibtracking.SettingsActivity;
 import com.embraser01.android.velibtracking.models.City;
 import com.embraser01.android.velibtracking.models.ListStation;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 public class NetTask_Volley {
 
 
-    public static void getStations(String contract, final Context context, final ListStation listStation, Response.ErrorListener errorListener) {
+    public static void getStations(String contract, final Context context, final ListStation listStation, final OnUpdateStationList callback, Response.ErrorListener errorListener) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -39,7 +40,7 @@ public class NetTask_Volley {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray jsonArray) {
-                        listStation.add(jsonArray);
+                        listStation.add(jsonArray, callback);
                     }
                 },
                 errorListener);

@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.embraser01.android.velibtracking.MainActivity;
+import com.embraser01.android.velibtracking.OnUpdateStationList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,7 +86,7 @@ public class ListStation implements Parcelable {
         this.context = context;
     }
 
-    public void add(JSONArray jsonArray) {
+    public void add(JSONArray jsonArray, OnUpdateStationList callback) {
         Station tmp;
         JSONObject tmp2;
 
@@ -116,7 +117,7 @@ public class ListStation implements Parcelable {
             }
         }
 
-        if (context != null) ((MainActivity) context).updateData();
+        if (callback != null) callback.updateData();
     }
 
 

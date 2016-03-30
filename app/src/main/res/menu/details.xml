@@ -7,6 +7,7 @@
     <item android:id="@+id/action_go_to"
         android:orderInCategory="1"
         android:title="@string/action_go_to"
+        android:visible="false"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_directions_white_24dp" />
 </menu>

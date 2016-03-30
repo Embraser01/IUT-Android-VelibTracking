@@ -27,7 +27,6 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
     private GoogleMap mMap;
     private Station mItem;
     private MenuItem item_go_to = null;
-    private int toolbar_height = 0;
 
     public final static float ZOOM_FACTOR = 18;
 
@@ -39,24 +38,18 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        makeHeight();
-
-
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
         if (appBarLayout != null) {
-            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
                 @Override
-                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                public void onStateChanged(AppBarLayout appBarLayout, State state) {
                     if(item_go_to == null) return;
 
-                    if (toolbar != null) {
-                        if(verticalOffset <= -toolbar_height && !item_go_to.isVisible()){
-                            item_go_to.setVisible(true);
-                        }else if(item_go_to.isVisible()){
-                            item_go_to.setVisible(false);
-                        }
+                    if(state.equals(State.COLLAPSED) && !item_go_to.isVisible()){
+                        item_go_to.setVisible(true);
+                    } else if(state.equals(State.EXPANDED) && item_go_to.isVisible()){
+                        item_go_to.setVisible(false);
                     }
-
                 }
             });
         }
@@ -80,15 +73,6 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
         TextView name = (TextView) findViewById(R.id.details_name);
         name.setText(mItem.getName());
-    }
-
-    private void makeHeight(){
-        int[] attrs = new int[] { R.attr.actionBarSize /* index 0 */};
-
-        TypedArray ta = this.obtainStyledAttributes(attrs);
-        toolbar_height = (int) (getResources().getDimension(R.dimen.app_bar_height) - ta.getInt(0, -1));
-
-        ta.recycle();
     }
 
     @Override

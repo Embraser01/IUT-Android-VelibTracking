@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +22,7 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.embraser01.android.recyclerview.ItemListViewBuilder;
 import com.embraser01.android.velibtracking.models.Station;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -119,17 +121,38 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
 
     public void initDetails() {
-        LayoutInflater inflater = (LayoutInflater) getApplicationContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        getSupportActionBar().setTitle(mItem.getName());
 
-        if (!mItem.getAddress().isEmpty()) listView.addView(getView(inflater, mItem.getAddress()));
-        listView.addView(getView(inflater, mItem.getStatus() + "  -  " + mItem.getAvailable_bikes() + "/" + mItem.getBike_stands()));
-        if (mItem.getLast_update() != null) listView.addView(getView(inflater, mItem.getLast_update().toString()));
+        LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ItemListViewBuilder viewBuilder = new ItemListViewBuilder(inflater, R.layout.detail_row);
 
-        //if(mItem.isBonus()) bonus.setText(mItem.getAddress());
+
+        if (!mItem.getAddress().isEmpty())
+            listView.addView(viewBuilder
+                    .addContent(
+                            R.id.details_text,
+                            mItem.getAddress())
+                    .setImage(
+                            R.id.details_icon,
+                            ContextCompat.getDrawable(
+                                    this,
+                                    R.drawable.ic_directions_white_24dp))
+                    .make());
+
+        listView.addView(viewBuilder.clear()
+                .addContent(
+                        R.id.details_text,
+                        mItem.getStatus())
+                .setImage(
+                        R.id.details_icon,
+                        ContextCompat.getDrawable(
+                                this,
+                                R.drawable.ic_fav_enable_24dp))
+                .make());
+
     }
 
-    private View getView (LayoutInflater inflater, String data){
+    private View getView(LayoutInflater inflater, String data) {
         View mLinearView = inflater.inflate(R.layout.detail_row, null);
         ((TextView) mLinearView.findViewById(R.id.details_text)).setText(data);
         return mLinearView;
@@ -140,29 +163,5 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
-    }
-
-
-    public class MyAdapter extends BaseAdapter {
-
-        @Override
-        public int getCount() {
-            return 0;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return null;
-        }
     }
 }

@@ -63,31 +63,6 @@ public class NetTask_Volley {
                     @Override
                     public void onResponse(JSONArray jsonArray) {
 
-                        /*JSONObject tmp2;
-                        JSONArray tmp3;
-                        City tmp;
-                        ArrayList<String> tmp_cities;
-
-
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            try {
-                                tmp_cities = new ArrayList<>();
-                                tmp2 = jsonArray.getJSONObject(i);
-
-                                tmp3 = tmp2.getJSONArray("cities");
-
-                                for (int j = 0; j < tmp3.length(); i++)
-                                    tmp_cities.add(tmp3.getString(i));
-
-                                tmp = new City(tmp_cities, tmp2.getString("commercial_name"), tmp2.getString("country_code"), tmp2.getString("name"));
-
-                                contracts.add(tmp);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }*/
-
                         CharSequence data[] = new CharSequence[jsonArray.length()];
                         for (int i = 0; i < jsonArray.length(); i++) {
                             try {

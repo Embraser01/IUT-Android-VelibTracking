@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.embraser01.android.velibtracking.models.Station;
@@ -132,7 +131,7 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
     private View getView (LayoutInflater inflater, String data){
         View mLinearView = inflater.inflate(R.layout.detail_row, null);
-        ((TextView) mLinearView.findViewById(R.id.details_text)).setText(mItem.getName());
+        ((TextView) mLinearView.findViewById(R.id.details_text)).setText(data);
         return mLinearView;
     }
 

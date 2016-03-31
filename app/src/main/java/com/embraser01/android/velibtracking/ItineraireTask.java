@@ -7,8 +7,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.w3c.dom.Document;
@@ -54,7 +56,7 @@ public class ItineraireTask extends AsyncTask<Void, Integer, Boolean> {
     protected Boolean doInBackground(Void... params) {
         try {
             //Construction de l'url à appeler
-            final StringBuilder url = new StringBuilder("http://maps.googleapis.com/maps/api/directions/xml?sensor=false&language=fr");
+            final StringBuilder url = new StringBuilder("http://maps.googleapis.com/maps/api/directions/xml?sensor=false&language=fr&mode=b");
             url.append("&origin=");
             url.append(editDepart.latitude).append(",").append(editDepart.longitude);
             url.append("&destination=");

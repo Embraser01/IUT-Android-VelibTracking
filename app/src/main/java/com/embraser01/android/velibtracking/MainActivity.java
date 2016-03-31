@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -55,8 +56,10 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
     private MenuItem filterEmpty = null;
     private MenuItem filterOpen = null;
 
-    private Station startStation = null;
-    private Station endStation = null;
+    private StationListViewAdapter.ViewHolder startStation = null;
+    private StationListViewAdapter.ViewHolder endStation = null;
+
+    private List<Station> filteredModelList = null;
 
 
     @Override
@@ -73,7 +76,11 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
             public void onClick(View view) {
 
                 Intent intent = new Intent(MainActivity.this, StationsActivity.class);
-                intent.putExtra("map_stations", listStation);
+                if (filteredModelList == null)
+                    intent.putParcelableArrayListExtra("map_stations", listStation.getStations());
+                else
+                    intent.putParcelableArrayListExtra("map_stations", (ArrayList<Station>) filteredModelList);
+
                 startActivity(intent);
             }
         });
@@ -157,18 +164,34 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
             return true;
         }
 
-        if(item == goToFrom && startStation != null && endStation != null){
-            goToFrom.setVisible(false);
+        if (item == goToFrom) {
+            if (startStation != null && endStation != null) {
+                goToFrom.setVisible(false);
 
-            Intent intent = new Intent(MainActivity.this, StationsActivity.class);
+                Intent intent = new Intent(MainActivity.this, StationsActivity.class);
 
-            intent.putExtra("map_stations", listStation);
-            intent.putExtra("start_station", startStation);
-            intent.putExtra("end_station", endStation);
-            startActivity(intent);
+                ArrayList<Station> items = new ArrayList<>();
+                items.add(startStation.mItem);
+                items.add(endStation.mItem);
 
-            startStation = null;
-            endStation = null;
+                intent.putExtra("map_stations", items);
+                intent.putExtra("itinerary", true);
+                startActivity(intent);
+
+                startStation.mView.setSelected(false);
+                endStation.mView.setSelected(false);
+                startStation = null;
+                endStation = null;
+
+            } else {
+                if (startStation != null) startStation.mView.setSelected(false);
+                if (endStation != null) endStation.mView.setSelected(false);
+
+                startStation = null;
+                endStation = null;
+
+                goToFrom.setVisible(false);
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -176,24 +199,34 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
 
 
     @Override
-    public void onClickItemListener(Station mItem) {
+    public void onClickItemListener(StationListViewAdapter.ViewHolder viewHolder) {
 
         Intent intent = new Intent(MainActivity.this, DetailsActivity.class);
-        intent.putExtra("station_detail", mItem);
+        intent.putExtra("station_detail", viewHolder.mItem);
         startActivity(intent);
     }
 
     @Override
-    public void onLongClickItemListener(Station mItem) {
+    public void onLongClickItemListener(StationListViewAdapter.ViewHolder viewHolder) {
 
         if (startStation == null) {
             goToFrom.setVisible(true);
             goToFrom.setEnabled(false);
-            startStation = mItem;
+            startStation = viewHolder;
+            viewHolder.mView.setSelected(true);
             Snackbar.make(this.mRecyclerView, R.string.go_to_select_one_more, Snackbar.LENGTH_LONG).show();
+        } else if (startStation.mItem == viewHolder.mItem) {
+            startStation.mView.setSelected(false);
+            startStation = null;
+            endStation = null;
         } else if (endStation == null) {
             goToFrom.setEnabled(true);
-            endStation = mItem;
+            endStation = viewHolder;
+            viewHolder.mView.setSelected(true);
+        } else if (endStation.mItem == viewHolder.mItem) {
+            endStation.mView.setSelected(false);
+            startStation = null;
+            endStation = null;
         } else {
             Snackbar.make(this.mRecyclerView, R.string.go_to_already_two_selection, Snackbar.LENGTH_LONG).show();
         }
@@ -295,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements OnListFragmentInt
     /*===== FILTERS SECTION =====*/
 
     public void filters() {
-        List<Station> filteredModelList = filterFav(listStation.getStations(), filterFav.isChecked());
+        filteredModelList = filterFav(listStation.getStations(), filterFav.isChecked());
         filteredModelList = filterEmptyStation(filteredModelList, !filterEmpty.isChecked());
         filteredModelList = filterFullStation(filteredModelList, !filterFull.isChecked());
         filteredModelList = filterOpenStation(filteredModelList, !filterOpen.isChecked());

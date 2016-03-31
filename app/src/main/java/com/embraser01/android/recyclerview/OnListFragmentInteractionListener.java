@@ -1,14 +1,14 @@
 package com.embraser01.android.recyclerview;
 
-import com.embraser01.android.velibtracking.models.Station;
+import com.embraser01.android.velibtracking.StationListViewAdapter;
 
 /**
  * Created by Marc-Antoine on 15/03/2016.
  */
 public interface OnListFragmentInteractionListener {
 
-    void onClickItemListener(Station mItem);
+    void onClickItemListener(StationListViewAdapter.ViewHolder viewHolder);
 
-    void onLongClickItemListener(Station mItem);
+    void onLongClickItemListener(StationListViewAdapter.ViewHolder viewHolder);
 
 }

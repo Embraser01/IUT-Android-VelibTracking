@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_gravity="bottom"
-                android:background="@drawable/shape_scrim"/>
+                android:background="@drawable/shape_scrim" />
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -61,28 +61,10 @@
         tools:showIn="@layout/activity_details">
 
         <LinearLayout
+            android:id="@+id/details_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-
-            <TextView
-                android:id="@+id/details_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/details_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/details_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-
-        </LinearLayout>
+            android:orientation="vertical" />
 
     </android.support.v4.widget.NestedScrollView>
 

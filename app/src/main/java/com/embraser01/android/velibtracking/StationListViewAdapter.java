@@ -63,7 +63,7 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onClickItemListener(holder.mItem);
+                    mListener.onClickItemListener(holder);
                 }
             }
         });
@@ -74,11 +74,13 @@ public class StationListViewAdapter extends RecyclerView.Adapter<StationListView
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onLongClickItemListener(holder.mItem);
+                    mListener.onLongClickItemListener(holder);
                 }
                 return true;
             }
         });
+
+
 
 
         holder.mFav.setImageResource((holder.mItem.isFav()) ? R.drawable.ic_fav_enable_24dp : R.drawable.ic_fav_disable_24dp);

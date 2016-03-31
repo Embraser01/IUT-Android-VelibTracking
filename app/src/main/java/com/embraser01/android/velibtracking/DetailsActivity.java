@@ -1,5 +1,6 @@
 package com.embraser01.android.velibtracking;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -7,11 +8,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.embraser01.android.velibtracking.models.Station;
@@ -22,11 +30,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
 public class DetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private Station mItem;
     private MenuItem item_go_to = null;
+    private LinearLayout listView = null;
+    private ArrayAdapter<String> adapter = null;
 
     public final static float ZOOM_FACTOR = 18;
 
@@ -43,11 +54,11 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
             appBarLayout.addOnOffsetChangedListener(new AppBarStateChangeListener() {
                 @Override
                 public void onStateChanged(AppBarLayout appBarLayout, State state) {
-                    if(item_go_to == null) return;
+                    if (item_go_to == null) return;
 
-                    if(state.equals(State.COLLAPSED) && !item_go_to.isVisible()){
+                    if (state.equals(State.COLLAPSED) && !item_go_to.isVisible()) {
                         item_go_to.setVisible(true);
-                    } else if(state.equals(State.EXPANDED) && item_go_to.isVisible()){
+                    } else if (state.equals(State.EXPANDED) && item_go_to.isVisible()) {
                         item_go_to.setVisible(false);
                     }
                 }
@@ -63,6 +74,8 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
                 }
             });
         }
+        listView = (LinearLayout) findViewById(R.id.details_list);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -71,8 +84,7 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
 
         mItem = getIntent().getParcelableExtra("station_detail");
 
-        TextView name = (TextView) findViewById(R.id.details_name);
-        name.setText(mItem.getName());
+        initDetails();
     }
 
     @Override
@@ -86,7 +98,7 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(item.getItemId() == R.id.action_go_to){
+        if (item.getItemId() == R.id.action_go_to) {
             launchMapActivity();
             return true;
         }
@@ -104,8 +116,24 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         LatLng station = new LatLng(mItem.getPosition_lat(), mItem.getPosition_lng());
         mMap.addMarker(new MarkerOptions().position(station).title(mItem.getName()));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(station, ZOOM_FACTOR));
+    }
 
 
+    public void initDetails() {
+        LayoutInflater inflater = (LayoutInflater) getApplicationContext()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        if (!mItem.getAddress().isEmpty()) listView.addView(getView(inflater, mItem.getAddress()));
+        listView.addView(getView(inflater, mItem.getStatus() + "  -  " + mItem.getAvailable_bikes() + "/" + mItem.getBike_stands()));
+        if (mItem.getLast_update() != null) listView.addView(getView(inflater, mItem.getLast_update().toString()));
+
+        //if(mItem.isBonus()) bonus.setText(mItem.getAddress());
+    }
+
+    private View getView (LayoutInflater inflater, String data){
+        View mLinearView = inflater.inflate(R.layout.detail_row, null);
+        ((TextView) mLinearView.findViewById(R.id.details_text)).setText(mItem.getName());
+        return mLinearView;
     }
 
     public void launchMapActivity() {
@@ -113,5 +141,29 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
+    }
+
+
+    public class MyAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return null;
+        }
     }
 }

@@ -1,15 +1,12 @@
 package com.embraser01.android.velibtracking;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import com.embraser01.android.velibtracking.models.ListStation;
 import com.embraser01.android.velibtracking.models.Station;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,11 +14,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 
 import java.util.ArrayList;
 
@@ -31,8 +26,7 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
     private GoogleMap mMap;
 
     private ArrayList<Station> stations;
-    private Station startStation = null;
-    private Station endStation = null;
+    private boolean itinerary = false;
 
     private ClusterManager<StationItem> mClusterManager;
 
@@ -52,15 +46,8 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        stations = ((ListStation) getIntent().getParcelableExtra("map_stations")).getStations();
-
-        startStation = getIntent().getParcelableExtra("start_station");
-        endStation = getIntent().getParcelableExtra("end_station");
-
-        if ((startStation == null && endStation != null) || (startStation != null && endStation == null)) {
-            startStation = null;
-            endStation = null;
-        }
+        stations = getIntent().getParcelableArrayListExtra("map_stations");
+        itinerary = getIntent().getBooleanExtra("itinerary", false);
     }
 
 
@@ -95,7 +82,7 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
         mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<StationItem>() {
             @Override
             public boolean onClusterItemClick(StationItem stationItem) {
-                if(stationItem == clickedClusterItem){
+                if (stationItem == clickedClusterItem) {
                     Intent intent = new Intent(StationsActivity.this, DetailsActivity.class);
                     intent.putExtra("station_detail", clickedClusterItem.mStation);
                     startActivity(intent);
@@ -122,6 +109,15 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void addItems() {
 
+        if (itinerary) {
+            new ItineraireTask(this,
+                    mMap,
+                    new LatLng(stations.get(0).getPosition_lat(), stations.get(0).getPosition_lng()),
+                    new LatLng(stations.get(1).getPosition_lat(), stations.get(1).getPosition_lng())
+            ).execute();
+        }
+
+
         StationItem offsetItem = null;
         for (int i = 0; i < stations.size(); i++) {
             offsetItem = new StationItem(stations.get(i));
@@ -130,15 +126,9 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
 
         mClusterManager.cluster();
 
-        if (startStation != null) {
-            new ItineraireTask(this,
-                    mMap,
-                    new LatLng(startStation.getPosition_lat(), startStation.getPosition_lng()),
-                    new LatLng(endStation.getPosition_lat(), endStation.getPosition_lng())
-            ).execute();
-        } else if (offsetItem != null) {
+        if (offsetItem != null)
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(offsetItem.getPosition(), ZOOM_FACTOR));
-        }
+
     }
 
 
@@ -210,11 +200,11 @@ public class StationsActivity extends AppCompatActivity implements OnMapReadyCal
             int nb_bikes = 0;
             int nb_available_bikes = 0;
 
-            for(StationItem item : clickedCluster.getItems()){
+            for (StationItem item : clickedCluster.getItems()) {
                 nb_bikes += item.mStation.getBike_stands();
                 nb_available_bikes += item.mStation.getAvailable_bikes();
 
-                if(item.mStation.getStatus().equals("OPEN")) nb_open++;
+                if (item.mStation.getStatus().equals("OPEN")) nb_open++;
             }
 
             plus.setText(nb_open + " OPEN  -  " + nb_available_bikes + "/" + nb_bikes);

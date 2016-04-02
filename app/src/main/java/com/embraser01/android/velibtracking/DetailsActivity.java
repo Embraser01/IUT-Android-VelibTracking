@@ -159,12 +159,6 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
                 .make());
     }
 
-    private View getView(LayoutInflater inflater, String data) {
-        View mLinearView = inflater.inflate(R.layout.detail_row, null);
-        ((TextView) mLinearView.findViewById(R.id.details_text)).setText(data);
-        return mLinearView;
-    }
-
     public void launchMapActivity() {
         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + mItem.getPosition_lat() + "," + mItem.getPosition_lng() + "&mode=b");
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);

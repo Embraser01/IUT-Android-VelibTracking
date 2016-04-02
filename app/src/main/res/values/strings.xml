@@ -38,4 +38,9 @@
     <string name="go_to_select_one_more">Select one more to create an itinerary</string>
     <string name="action_go_to_from">Itinary between two station</string>
     <string name="go_to_fail_itinary">Unable to get itinary</string>
+    <string name="icon_desc">Icon</string>
+    <string name="details_bikes">bikes available</string>
+    <string name="details_banking">Terminal paymenent</string>
+    <string name="details_not_banking">No terminal payement</string>
+    <string name="details_bonus">Bonus station</string>
 </resources>

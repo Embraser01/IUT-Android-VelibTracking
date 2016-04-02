@@ -2,23 +2,21 @@ package com.embraser01.android.velibtracking;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -123,33 +121,42 @@ public class DetailsActivity extends AppCompatActivity implements OnMapReadyCall
     public void initDetails() {
         getSupportActionBar().setTitle(mItem.getName());
 
+
         LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ItemListViewBuilder viewBuilder = new ItemListViewBuilder(inflater, R.layout.detail_row);
 
+        viewBuilder.setImageColor(ContextCompat.getColor(this, R.color.colorPrimary));
 
-        if (!mItem.getAddress().isEmpty())
-            listView.addView(viewBuilder
-                    .addContent(
-                            R.id.details_text,
-                            mItem.getAddress())
-                    .setImage(
-                            R.id.details_icon,
-                            ContextCompat.getDrawable(
-                                    this,
-                                    R.drawable.ic_directions_white_24dp))
-                    .make());
 
-        listView.addView(viewBuilder.clear()
-                .addContent(
-                        R.id.details_text,
-                        mItem.getStatus())
-                .setImage(
-                        R.id.details_icon,
-                        ContextCompat.getDrawable(
-                                this,
-                                R.drawable.ic_fav_enable_24dp))
+        if (!mItem.getAddress().isEmpty()) listView.addView(viewBuilder
+                .addContent(R.id.details_text, mItem.getAddress())
+                .setImage(R.id.details_icon, ContextCompat.getDrawable(this, R.drawable.ic_directions_white_24dp))
                 .make());
 
+        listView.addView(viewBuilder.clear()
+                .addContent(R.id.details_text, mItem.getAvailable_bikes() + "/" + mItem.getBike_stands() + "  " + getResources().getString(R.string.details_bikes))
+                .setImage(R.id.details_icon, ContextCompat.getDrawable(this, R.drawable.ic_directions_bike_white_24dp))
+                .make());
+
+        listView.addView(viewBuilder.clear()
+                .addContent(R.id.details_text, mItem.getStatus())
+                .setImage(R.id.details_icon, ContextCompat.getDrawable(this, mItem.getStatus().equals("OPEN") ? R.drawable.ic_lock_open_white_24dp : R.drawable.ic_lock_outline_white_24dp))
+                .make());
+
+        listView.addView(viewBuilder.clear()
+                .addContent(R.id.details_text, mItem.isBanking() ? getResources().getString(R.string.details_banking) : getResources().getString(R.string.details_not_banking))
+                .setImage(R.id.details_icon, ContextCompat.getDrawable(this, R.drawable.ic_payment_white_24dp))
+                .make());
+
+        if(mItem.isBonus()) listView.addView(viewBuilder.clear()
+                .addContent(R.id.details_text, getResources().getString(R.string.details_bonus))
+                .setImage(R.id.details_icon, ContextCompat.getDrawable(this, R.drawable.ic_access_time_white_24dp))
+                .make());
+
+        listView.addView(viewBuilder.clear()
+                .addContent(R.id.details_text, mItem.getLast_update().toString())
+                .setImage(R.id.details_icon, ContextCompat.getDrawable(this, R.drawable.ic_update_white_24dp))
+                .make());
     }
 
     private View getView(LayoutInflater inflater, String data) {

@@ -1,2 +1,11 @@
-# IUT-Android-VelibTracking
-Projet Android Semestre 4 - 2015/2016 - IUT Informatique Lyon 1, site de Bourg-en-Bresse
+# VelibTracking
+
+![Logo](/app/src/main/res/mipmap-xhdpi/ic_launcher.png)
+
+
+Android application to keep track on self-service bike in multiple cities (located in Europe).
+This app follows the Material Guidelines. It works with real-time data and can provide a route between two stations
+
+## Screenshots
+
+Screenshots can be found in [this folder](/assets)
